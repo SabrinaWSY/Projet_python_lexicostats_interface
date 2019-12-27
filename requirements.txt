@@ -1,0 +1,13 @@
+gensim
+numpy
+RISE
+scikit-learn
+spacy
+matplotlib
+jupyterlab
+regex
+beautifulsoup4
+requests
+lxml
+flake8
+black

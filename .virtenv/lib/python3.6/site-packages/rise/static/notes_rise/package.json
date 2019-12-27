@@ -1,0 +1,46 @@
+{
+  "_from": "notes_rise@~1.0.1",
+  "_id": "notes_rise@1.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-yVT4GYXI41zUsLRh2HqMdvuHqZ9aSczwNd5/Teu57+Gncso8V2/X90cyExB5vX+5AwM4U2zMnludzIS7sr3CeA==",
+  "_location": "/notes_rise",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "notes_rise@~1.0.1",
+    "name": "notes_rise",
+    "escapedName": "notes_rise",
+    "rawSpec": "~1.0.1",
+    "saveSpec": null,
+    "fetchSpec": "~1.0.1"
+  },
+  "_requiredBy": [
+    "#DEV:/"
+  ],
+  "_resolved": "https://registry.npmjs.org/notes_rise/-/notes_rise-1.0.1.tgz",
+  "_shasum": "f20d4db321f64051bdd719c43c1a327551aa37fb",
+  "_spec": "notes_rise@~1.0.1",
+  "_where": "/mnt/c/Users/Damian/Documents/devel/RISE",
+  "author": {
+    "name": "Damian Avila",
+    "email": "damianavila82@yahoo.com.ar",
+    "url": "http://damianavila.github.io/blog/"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Customized notes reveal.js plugin used by RISE",
+  "keywords": [
+    "rise",
+    "reveal.js",
+    "slides",
+    "jupyter"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "notes_rise",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.1"
+}
