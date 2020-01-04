@@ -1,0 +1,11 @@
+L'elaborazione del linguaggio naturale, detta anche NLP (dall'inglese Natural Language Processing, elaborazione lingua naturale), è il processo di trattamento automatico mediante un calcolatore elettronico delle informazioni scritte o parlate in una lingua naturale.
+Questo processo è reso particolarmente difficile e complesso a causa delle caratteristiche intrinseche di ambiguità del linguaggio umano. Per questo motivo il processo di elaborazione viene suddiviso in fasi diverse, tuttavia simili a quelle che si possono incontrare nel processo di elaborazione di un linguaggio di programmazione:
+
+analisi lessicale: scomposizione di un'espressione linguistica in token (in questo caso le parole)
+analisi grammaticale: associazione delle parti del discorso a ciascuna parola nel testo
+analisi sintattica: arrangiamento dei token in una struttura sintattica (ad albero: parse tree)
+analisi semantica: assegnazione di un significato (semantica) alla struttura sintattica e, di conseguenza, all'espressione linguistica
+Nell'analisi semantica la procedura automatica che attribuisce all'espressione linguistica un significato tra i diversi possibili è detta disambiguazione.
+In teoria, l'elaborazione del linguaggio naturale è un metodo di interazione uomo-macchina. I primi sistemi sviluppati, quali SHRDLU, che lavoravano in "mondi a blocchi" con vocabolari ristretti, ottenevano ottimi risultati. Ciò portò i ricercatori a un eccessivo ottimismo, che presto scemò non appena i sistemi furono estesi a situazioni più realistiche con problemi reali di ambiguità e complessità.
+
+La comprensione del linguaggio naturale è spesso considerata un problema IA-completo, poiché si pensa che il riconoscimento del linguaggio richieda una conoscenza estesa del mondo e una grande capacità di manipolarlo. Per questa ragione, la definizione di "comprensione" è uno dei maggiori problemi dell'elaborazione del linguaggio naturale.
