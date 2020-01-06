@@ -65,6 +65,7 @@ class MyWindow:
         # display directly
         self.text.insert('end', '--------------------\nText preview : \n-----------------\n' + str(self.df)[:300] +'\n')
 
+
     def display(self):
         # ask for file if not loaded yet
         if self.df is None:
@@ -77,6 +78,7 @@ class MyWindow:
             language = langs[0]
             #print(language)
             self.text.insert('end', '\n--------------------\nLanguage propability : \n\t' + str(language)+'\n')
+
 
     def wordcloud_graph(self):
         if self.df is None:
@@ -112,7 +114,7 @@ class MyWindow:
             generate_wordcloud(text, stop_words)
         else:
             tk.messagebox.showinfo('Warning','Sorry, the language '+language+' is not supported yet...')
-            
+
 
     def bigram(self):
         if self.df is None:
