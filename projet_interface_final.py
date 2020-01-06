@@ -111,7 +111,8 @@ class MyWindow:
             stop_words = stopwords.words('italian')
             generate_wordcloud(text, stop_words)
         else:
-            self.text.insert('end', 'Sorry, other languages not supported yet...')
+            tk.messagebox.showinfo('Warning','Sorry, the language '+language+' is not supported yet...')
+            
 
     def bigram(self):
         if self.df is None:
@@ -232,13 +233,7 @@ class MyWindow:
             res=Counter(wordlist).most_common(len(wordlist))
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(res[:50]) + '\n')
-            pos_list = nltk.pos_tag(wordlist)
-            print(pos_list)
-            tag_fd = nltk.FreqDist(tag for (word, tag) in pos_list)
-            print(tag_fd.most_common())
-            self.text.insert('end', '--------------------\nPOS distribution: \n')
-            for a in tag_fd.most_common():
-                self.text.insert('end', '\t'+ str(a) + '\n')
+            tk.messagebox.showinfo('Warning','Sorry, the language '+language+' is not supported yet...')
 
 
 # --- for occidental language corpus ---
