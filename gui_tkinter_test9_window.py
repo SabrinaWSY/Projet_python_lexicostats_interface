@@ -10,19 +10,19 @@ import os
 import jieba
 import jieba.posseg as pseg
 import nltk
+from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 import langdetect
 import spacy
-from collections import Counter
-import pprint   # For proper print of sequences.
 import matplotlib
 matplotlib.use("TkAgg") 
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import numpy as np
+from collections import Counter
 
 
 # --- classes ---
-
 class MyWindow:
     def __init__(self, parent):
 
@@ -50,14 +50,12 @@ class MyWindow:
         self.bigram_button = tk.Button(self.parent, text='BIGRAMS', command=self.bigram)
         self.bigram_button.pack()
 
-        self.grapheWindow_button = tk.Button(self.parent, text="POS GRAPHE", command=self.CreateNewWindow)
+        self.grapheWindow_button = tk.Button(self.parent, text="WORDCLOUD", command=self.wordcloud_graph)
         self.grapheWindow_button.pack()
 
-        # # save data button
-        # self.save_button = tk.Button(self.parent, text='SAVE DATA', command=self.file_save)
-        # self.save_button.pack()
 
     def load(self):
+        self.text.delete('1.0','end')
         name = askopenfilename(filetypes=[('TXT', '*.txt',)])
         with open(name,'r') as UseFile:
             self.df = UseFile.read()
@@ -65,38 +63,74 @@ class MyWindow:
         self.filename = name
 
         # display directly
-        self.text.insert('end', 'Text preview : \n-----------------\n' + str(self.df)[:300] + '\n--------------------\n')
+        self.text.insert('end', '--------------------\nText preview : \n-----------------\n' + str(self.df)[:300] +'\n')
 
     def display(self):
         # ask for file if not loaded yet
         if self.df is None:
-            self.load_file()
+            tk.messagebox.showinfo('Warning','No file loaded!')
 
         # display if loaded
         if self.df is not None:
-            self.text.insert('end', 'File Path : \n' + self.filename + '\n--------------------\n')
+            self.text.insert('end', '\n--------------------\nFile Path : \n' + self.filename)
             langs = langdetect.detect_langs(str(self.df))
             language = langs[0]
             #print(language)
-            self.text.insert('end', 'Language propability : \n\t' + str(language) + '\n--------------------\n')
-            #self.text.insert('end', str(str(self.df)) + '\n')
+            self.text.insert('end', '\n--------------------\nLanguage propability : \n\t' + str(language)+'\n')
 
-    def CreateNewWindow(self):
-        self.top = tk.Toplevel()
-        self.top.title("Graphe Stats")
+    def wordcloud_graph(self):
+        if self.df is None:
+            tk.messagebox.showinfo('Warning','No file loaded!')
         
+        text = self.df
+        langs = langdetect.detect_langs(text)
+        language = str(langs[0])[:2]
+        if language == 'zh':
+            font = './simfang.ttf'
+            wc = WordCloud(font_path=font, background_color="white", max_words=2000,
+               max_font_size=100, random_state=42, width=1000, height=860, margin=2,).generate(jieba_processing_txt(text))
+            plt.imshow(wc, interpolation="bilinear")
+            plt.axis("off")
+            plt.show()
+        elif language == 'en':
+            stop_words = stopwords.words('english')
+            generate_wordcloud(text, stop_words)
+        elif language == 'fr':
+            stop_words = stopwords.words('french')
+            temp_words = ["les", "une", "cette", "elle","c'est"]
+            for i in temp_words:
+                stop_words.append(i)
+            generate_wordcloud(text, stop_words)
+        elif language == 'de':
+            stop_words = stopwords.words('german')
+            generate_wordcloud(text, stop_words)
+        elif language == 'es':
+            stop_words = stopwords.words('spanish')
+            generate_wordcloud(text, stop_words)
+        elif language == 'it':
+            stop_words = stopwords.words('italian')
+            generate_wordcloud(text, stop_words)
+        else:
+            self.text.insert('end', 'Sorry, other languages not supported yet...')
 
     def bigram(self):
+        if self.df is None:
+            tk.messagebox.showinfo('Warning','No file loaded!')
+
         # create bigrams for non-chinese languages
         text = self.df
         langs = langdetect.detect_langs(text)
         language = str(langs[0])[:2]
+
+        # if chinese
         if language == 'zh':
             res = bigram_ch_sort(text)
             #print(res)
             self.text.insert('end', '--------------------\nTop bigrams : \n')
             for b in res[:40]:
                 self.text.insert('end', '\t'+ str(b) + '\n')
+
+        # other languages (separated by space)
         else:
             bigram_list = []
             text = re.sub("\n"," ",self.df)
@@ -111,12 +145,17 @@ class MyWindow:
             for b in res[:40]:
                 self.text.insert('end', '\t'+ str(b) + '\n')
 
+
     def token_stats(self):
+        if self.df is None:
+            tk.messagebox.showinfo('Warning','No file loaded!')
+
         # tokenize
         text = self.df
         langs = langdetect.detect_langs(text)
         language = str(langs[0])[:2]
         print(language)
+
         # if chinese
         if language == "zh":
             wordlist_ch = tokenize_ch(text)
@@ -124,64 +163,116 @@ class MyWindow:
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(res_ch[:50]) + '\n')
             list_tag_ch = pos_tag_ch(text)
-            self.text.insert('end', '\t'+ str(list_tag_ch) + '\n')
+            res_tag_ch = Counter(list_tag_ch).most_common(len(list_tag_ch))
+            self.text.insert('end', '--------------------\nPOS distribution: \n')
+            for a in res_tag_ch:
+                self.text.insert('end', '\t'+ str(a) + '\n')
+            # graph
+            labels,nb = get_value4graph(res_tag_ch)
+            tag_bar_graph(labels,nb)
+
         # if french
         elif language == "fr":
             wordlist_fr = tokenize(self.df, 'french')
             #print(wordlist_fr)
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(wordlist_fr[:50]) + '\n')
-            
             tag_fr = nlp_fr(text)
-            tag_list = []
-            for token in tag_fr:
-                print(token.text+"\t"+token.pos_+"\n")
-                tag_list.append(token.pos_)
-            res=Counter(tag_list).most_common(len(tag_list))
-            #print(res)
-            self.text.insert('end', '--------------------\nPOS distribution: \n')
-            for a in res:
-                self.text.insert('end', '\t'+ str(a) + '\n')
-            labels, nb = get_value4graph(res)
-            tag_bar_graph(labels,nb)
+            process_occi(text,tag_fr,self)
+
         # if english
         elif language == 'en':
-            pass
+            wordlist_en = word_tokenize(self.df,'english')
+            #print(wordlist_en)
+            res=Counter(wordlist_en).most_common(len(wordlist_en))
+            self.text.insert('end', '--------------------\nTop tokens : \n')
+            self.text.insert('end', '\t'+ str(res[:50]) + '\n')
+            pos_list = nltk.pos_tag(wordlist_en)
+            #print(pos_list)
+            tag_fd = nltk.FreqDist(tag for (word, tag) in pos_list)
+            print(tag_fd.most_common())
+            self.text.insert('end', '--------------------\nPOS distribution: \n')
+            for a in tag_fd.most_common():
+                self.text.insert('end', '\t'+ str(a) + '\n')
+            # graph
+            labels, nb = get_value4graph(tag_fd.most_common())
+            tag_bar_graph(labels,nb)
+
         # if german
         elif language == 'de': 
-            pass
+            wordlist_de = tokenize(self.df, 'german')
+            #print(wordlist_de)
+            self.text.insert('end', '--------------------\nTop tokens : \n')
+            self.text.insert('end', '\t'+ str(wordlist_de[:50]) + '\n')
+            tag_de = nlp_de(text)
+            process_occi(text,tag_de,self)
+
         # if spanish
+        elif language == 'es': 
+            wordlist_es= tokenize(self.df, 'spanish')
+            #print(wordlist_es)
+            self.text.insert('end', '--------------------\nTop tokens : \n')
+            self.text.insert('end', '\t'+ str(wordlist_es[:50]) + '\n')
+            tag_es = nlp_es(text)
+            process_occi(text,tag_es,self)
+
         # if italien
+        elif language == 'it': 
+            wordlist_it= tokenize(self.df, 'spanish')
+            #print(wordlist_it)
+            self.text.insert('end', '--------------------\nTop tokens : \n')
+            self.text.insert('end', '\t'+ str(wordlist_it[:50]) + '\n')
+            tag_it = nlp_it(text)
+            process_occi(text,tag_it,self)
+
+        # other languages are considered as english treatement rules
         else: 
-            # text = re.sub("\n"," ",self.df)
-            # textlist = re.sub("[(),.]", "", text).split(' ')
             wordlist = word_tokenize(self.df)
             #print(wordlist)
             res=Counter(wordlist).most_common(len(wordlist))
-            self.text.insert('end', 'Top tokens : \n')
+            self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(res[:50]) + '\n')
             pos_list = nltk.pos_tag(wordlist)
             print(pos_list)
             tag_fd = nltk.FreqDist(tag for (word, tag) in pos_list)
             print(tag_fd.most_common())
+            self.text.insert('end', '--------------------\nPOS distribution: \n')
             for a in tag_fd.most_common():
                 self.text.insert('end', '\t'+ str(a) + '\n')
 
-    # def file_save(self):
-    #     fname = asksaveasfilename(filetypes=(("txt files", "*.txt"),
-    #                                     ("All files", "*.*")))
-    #     # note: this will fail unless user ends the fname with ".txt"
-    #     with open(fname,'w')as SaveFile:
-    #         SaveFile.write(str(self.bigram))
-            
+
+# --- for occidental language corpus ---
 def tokenize(text, langue):
     wordlist = word_tokenize(text, language=langue)
     #print(wordlist)
     res=Counter(wordlist).most_common(len(wordlist))
     return res
 
+def process_occi(text,tag_lang,self):
+    tag_list = []
+    for token in tag_lang:
+        print(token.text+"\t"+token.pos_+"\n")
+        tag_list.append(token.pos_)
+    res=Counter(tag_list).most_common(len(tag_list))
+    #print(res)
+    self.text.insert('end', '--------------------\nPOS distribution: \n')
+    for a in res:
+        self.text.insert('end', '\t'+ str(a) + '\n')
+    # graph
+    labels, nb = get_value4graph(res)
+    tag_bar_graph(labels,nb)
 
-# tokenize chinese language corpus
+def generate_wordcloud(text,stop_words):
+    # Create and generate a word cloud image:
+    # lower max_font_size, change the maximum number of word and lighten the background:
+    wordcloud = WordCloud(stopwords = stop_words, background_color="white", max_words=2000,
+       max_font_size=100, random_state=42, width=1000, height=860, margin=2).generate(text)
+    plt.figure()
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
+    plt.show()
+
+# --- for chinese corpus ---
 def tokenize_ch(text):
 	pattern=re.compile(u'[^\u4E00-\u9FA5]')
 	text=pattern.sub(r"", text)
@@ -212,6 +303,18 @@ def bigram_ch_sort(text):
     res=Counter(data).most_common(len(data))
     os.remove('temp.txt')
     return res
+
+# The function for processing text with Jieba
+def jieba_processing_txt(text):
+    mywordlist = []
+    seg_list = jieba.cut(text, cut_all=False)
+    liststr = "/ ".join(seg_list)
+
+    for myword in liststr.split('/'):
+        if len(myword.strip()) > 1:
+            mywordlist.append(myword)
+    return ' '.join(mywordlist)
+
 	
 # --- graphes ---
 
@@ -233,19 +336,20 @@ def tag_bar_graph(labels, nb):
     plt.title('Number of each POS')
     plt.show()
 
+# to add : wordcloud
+
+
 # --- main ---
 
 if __name__ == '__main__':
     root = tk.Tk()
-    Title = root.title( "Siyu's Project")
-    root.geometry('800x600')
+    Title = root.title( "POStats Interface")
+    root.geometry('800x550')
 
     nlp_fr = spacy.load('fr_core_news_sm')
-    # add image to the interface
-    # canvas = Canvas(width=500, height=300, bg='black')
-    # image_file = PhotoImage(file='./bg.gif')  # 图片位置（相对路径，与.py文件同一文件夹下，也可以用绝对路径，需要给定图片具体绝对路径）
-    # image = canvas.create_image(0, 0, anchor='n',image=image_file)        # 图片锚定点（n图片顶端的中间点位置）放在画布（250,0）坐标处
-    # canvas.pack()
+    nlp_de = spacy.load('de_core_news_sm')
+    nlp_es = spacy.load('es_core_news_sm')
+    nlp_it = spacy.load('it_core_news_sm')
     
     top = MyWindow(root)
     root.mainloop()
