@@ -99,7 +99,7 @@ class MyWindow:
             generate_wordcloud(text, stop_words)
         elif language == 'fr':
             stop_words = stopwords.words('french')
-            temp_words = ["les", "une", "cette", "elle","c'est"]
+            temp_words = ["les", "une", "cette", "elle","c'est","si", "quand", "qu'"]
             for i in temp_words:
                 stop_words.append(i)
             generate_wordcloud(text, stop_words)
