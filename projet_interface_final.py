@@ -31,6 +31,7 @@ class MyWindow:
         self.filename = None
         self.df = None
 
+        # text zone
         self.text = tk.Text(self.parent)
         self.text.pack()
 
@@ -50,24 +51,34 @@ class MyWindow:
         self.bigram_button = tk.Button(self.parent, text='BIGRAMS', command=self.bigram)
         self.bigram_button.pack()
 
+        # wordcloud button
         self.grapheWindow_button = tk.Button(self.parent, text="WORDCLOUD", command=self.wordcloud_graph)
         self.grapheWindow_button.pack()
 
 
     def load(self):
+        """ 
+        load file 
+        """
+        # clear the text zone before each file is loaded
         self.text.delete('1.0','end')
+
+        # load file
         name = askopenfilename(filetypes=[('TXT', '*.txt',)])
         with open(name,'r') as UseFile:
             self.df = UseFile.read()
             
         self.filename = name
 
-        # display directly
+        # display directly as a preview of the text file
         self.text.insert('end', '--------------------\nText preview : \n-----------------\n' + str(self.df)[:300] +'\n')
 
 
     def display(self):
-        # ask for file if not loaded yet
+        """ 
+        display file path and language of the file
+        """
+        # warning if no file is loaded by the user
         if self.df is None:
             tk.messagebox.showinfo('Warning','No file loaded!')
 
@@ -76,17 +87,23 @@ class MyWindow:
             self.text.insert('end', '\n--------------------\nFile Path : \n' + self.filename)
             langs = langdetect.detect_langs(str(self.df))
             language = langs[0]
-            #print(language)
             self.text.insert('end', '\n--------------------\nLanguage propability : \n\t' + str(language)+'\n')
 
 
     def wordcloud_graph(self):
+        """ 
+        generate wordcloud graphs
+        """
+        # warning if no file is loaded by the user
         if self.df is None:
             tk.messagebox.showinfo('Warning','No file loaded!')
-        
+
+        # file already loaded then : 
         text = self.df
         langs = langdetect.detect_langs(text)
         language = str(langs[0])[:2]
+
+        # if chinese
         if language == 'zh':
             font = './simfang.ttf'
             wc = WordCloud(font_path=font, background_color="white", max_words=2000,
@@ -94,33 +111,49 @@ class MyWindow:
             plt.imshow(wc, interpolation="bilinear")
             plt.axis("off")
             plt.show()
+
+        # if english
         elif language == 'en':
             stop_words = stopwords.words('english')
             generate_wordcloud(text, stop_words)
+
+        # if french
         elif language == 'fr':
             stop_words = stopwords.words('french')
             temp_words = ["les", "une", "cette", "elle","c'est","si", "quand", "qu'"]
             for i in temp_words:
                 stop_words.append(i)
             generate_wordcloud(text, stop_words)
+        
+        # if german
         elif language == 'de':
             stop_words = stopwords.words('german')
             generate_wordcloud(text, stop_words)
+
+        # if spanish
         elif language == 'es':
             stop_words = stopwords.words('spanish')
             generate_wordcloud(text, stop_words)
+
+        # if italien
         elif language == 'it':
             stop_words = stopwords.words('italian')
             generate_wordcloud(text, stop_words)
+
+        # if other language detected
         else:
             tk.messagebox.showinfo('Warning','Sorry, the language '+language+' is not supported yet...')
 
 
     def bigram(self):
+        """ 
+        dispay top bigrams
+        """ 
+        # warning if no file is loaded by the user
         if self.df is None:
             tk.messagebox.showinfo('Warning','No file loaded!')
 
-        # create bigrams for non-chinese languages
+        # create bigrams 
         text = self.df
         langs = langdetect.detect_langs(text)
         language = str(langs[0])[:2]
@@ -128,7 +161,6 @@ class MyWindow:
         # if chinese
         if language == 'zh':
             res = bigram_ch_sort(text)
-            #print(res)
             self.text.insert('end', '--------------------\nTop bigrams : \n')
             for b in res[:40]:
                 self.text.insert('end', '\t'+ str(b) + '\n')
@@ -139,17 +171,23 @@ class MyWindow:
             text = re.sub("\n"," ",self.df)
             textlist = re.sub("[(),.]", "", text).split('\.')
             bigrams = [b for l in textlist for b in zip(l.split(" ")[:-1], l.split(" ")[1:])]
-            #print(bigrams)
+
             for a in bigrams:
                 bigram_list.append(a[0]+' '+a[1])
             res=Counter(bigram_list).most_common(len(bigrams))
-            #print(res)
+            
             self.text.insert('end', '--------------------\nTop bigrams : \n')
             for b in res[:40]:
                 self.text.insert('end', '\t'+ str(b) + '\n')
 
 
     def token_stats(self):
+        """ 
+        tokennize the corpus and display top tokens
+        POS tagging and display POS distributions 
+        show POS distribution in graph
+        """ 
+        # warning if no file is loaded by the user
         if self.df is None:
             tk.messagebox.showinfo('Warning','No file loaded!')
 
@@ -165,11 +203,15 @@ class MyWindow:
             res_ch=Counter(wordlist_ch).most_common(len(wordlist_ch))
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(res_ch[:50]) + '\n')
+
+            # POS tagging
             list_tag_ch = pos_tag_ch(text)
             res_tag_ch = Counter(list_tag_ch).most_common(len(list_tag_ch))
+
             self.text.insert('end', '--------------------\nPOS distribution: \n')
             for a in res_tag_ch:
                 self.text.insert('end', '\t'+ str(a) + '\n')
+
             # graph
             labels,nb = get_value4graph(res_tag_ch)
             tag_bar_graph(labels,nb)
@@ -177,26 +219,28 @@ class MyWindow:
         # if french
         elif language == "fr":
             wordlist_fr = tokenize(self.df, 'french')
-            #print(wordlist_fr)
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(wordlist_fr[:50]) + '\n')
+            
+            # POS tagging
             tag_fr = nlp_fr(text)
             process_occi(text,tag_fr,self)
 
         # if english
         elif language == 'en':
             wordlist_en = word_tokenize(self.df,'english')
-            #print(wordlist_en)
             res=Counter(wordlist_en).most_common(len(wordlist_en))
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(res[:50]) + '\n')
+            
+            # POS tagging
             pos_list = nltk.pos_tag(wordlist_en)
-            #print(pos_list)
             tag_fd = nltk.FreqDist(tag for (word, tag) in pos_list)
             print(tag_fd.most_common())
             self.text.insert('end', '--------------------\nPOS distribution: \n')
             for a in tag_fd.most_common():
                 self.text.insert('end', '\t'+ str(a) + '\n')
+
             # graph
             labels, nb = get_value4graph(tag_fd.most_common())
             tag_bar_graph(labels,nb)
@@ -204,34 +248,36 @@ class MyWindow:
         # if german
         elif language == 'de': 
             wordlist_de = tokenize(self.df, 'german')
-            #print(wordlist_de)
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(wordlist_de[:50]) + '\n')
+
+            # POS tagging
             tag_de = nlp_de(text)
             process_occi(text,tag_de,self)
 
         # if spanish
         elif language == 'es': 
             wordlist_es= tokenize(self.df, 'spanish')
-            #print(wordlist_es)
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(wordlist_es[:50]) + '\n')
+
+            # POS tagging
             tag_es = nlp_es(text)
             process_occi(text,tag_es,self)
 
         # if italien
         elif language == 'it': 
             wordlist_it= tokenize(self.df, 'spanish')
-            #print(wordlist_it)
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(wordlist_it[:50]) + '\n')
+
+            # POS tagging
             tag_it = nlp_it(text)
             process_occi(text,tag_it,self)
 
         # other languages are considered as english treatement rules
         else: 
             wordlist = word_tokenize(self.df)
-            #print(wordlist)
             res=Counter(wordlist).most_common(len(wordlist))
             self.text.insert('end', '--------------------\nTop tokens : \n')
             self.text.insert('end', '\t'+ str(res[:50]) + '\n')
@@ -239,22 +285,25 @@ class MyWindow:
 
 
 # --- for occidental language corpus ---
+
 def tokenize(text, langue):
     wordlist = word_tokenize(text, language=langue)
-    #print(wordlist)
     res=Counter(wordlist).most_common(len(wordlist))
     return res
 
 def process_occi(text,tag_lang,self):
+    # treatment of POStagging datas
     tag_list = []
     for token in tag_lang:
         print(token.text+"\t"+token.pos_+"\n")
         tag_list.append(token.pos_)
     res=Counter(tag_list).most_common(len(tag_list))
-    #print(res)
+
+    # display POS distribution
     self.text.insert('end', '--------------------\nPOS distribution: \n')
     for a in res:
         self.text.insert('end', '\t'+ str(a) + '\n')
+
     # graph
     labels, nb = get_value4graph(res)
     tag_bar_graph(labels,nb)
@@ -284,7 +333,6 @@ def pos_tag_ch(text):
     for word, flag in words:
         dict_tag_ch[word] = flag
         list_tag_ch.append(flag)
-        #print(word+flag)
     return list_tag_ch
 
 def bigram_ch(text):
@@ -316,6 +364,7 @@ def jieba_processing_txt(text):
 # --- graphes ---
 
 def get_value4graph(res):
+    # prepare the data for matplotlib bar graph
     labels = []
     nb = []
     for k,v in res:
@@ -332,8 +381,6 @@ def tag_bar_graph(labels, nb):
     plt.xticks(index, labels, fontsize=5, rotation=30)
     plt.title('Number of each POS')
     plt.show()
-
-# to add : wordcloud
 
 
 # --- main ---
