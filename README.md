@@ -5,7 +5,7 @@ Project in python creating an program with user interface to detect language, pr
 # Avant utilisation
 - Des pips installés sont dans 'requirements.txt', il faut les installer avant l'utiliser cette interface.
 - Des modèles de langues de spacy sont téléchargé pour le POS tagging de ces langues, il faut aussi les installer avant l'utilisation de l'interface.
-python -m spacy download de_core_news_sm
-python -m spacy download fr_core_news_sm
-python -m spacy download es_core_news_sm
-python -m spacy download it_core_news_sm
+  - python -m spacy download de_core_news_sm
+  - python -m spacy download fr_core_news_sm
+  - python -m spacy download es_core_news_sm
+  - python -m spacy download it_core_news_sm
