@@ -9,5 +9,8 @@ Project in python creating an program with user interface to detect language, pr
   - python -m spacy download fr_core_news_sm
   - python -m spacy download es_core_news_sm
   - python -m spacy download it_core_news_sm
+
+# Lancer le script
+>>> python3 python3 projet_interface_final.py
 # Notice
 - Ça prend un peu de temps pour ouvrir l'interface puisque les modèles de langues doivent être chargés avant l'utilisation
