@@ -45,7 +45,7 @@ thinc==7.3.1
 toml==0.10.0
 tqdm==4.41.1
 typed-ast==1.4.0
-urllib3==1.25.8
+urllib3==1.26.5
 virtualenv==16.7.8
 wasabi==0.5.0
 zipp==0.6.0
