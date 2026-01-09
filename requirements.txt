@@ -48,4 +48,4 @@ typed-ast==1.4.0
 urllib3==1.26.19
 virtualenv==20.26.6
 wasabi==0.5.0
-zipp==0.6.0
+zipp==3.19.1
