@@ -46,6 +46,6 @@ toml==0.10.0
 tqdm==4.66.3
 typed-ast==1.4.0
 urllib3==2.6.3
-virtualenv==20.26.6
+virtualenv==21.14.13
 wasabi==0.5.0
 zipp==3.19.1
